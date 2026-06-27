@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS-Moog · Advanced Synthesizer</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+</head>
+<body>
+  <!-- Boot screen -->
+  <div id="boot-screen">
+    <div class="boot-content">
+      <h1 class="boot-title">NEXUS<span class="title-accent">-Moog</span></h1>
+      <p class="boot-subtitle">Advanced Web Audio Synthesizer</p>
+      <button id="power-btn" class="power-btn">POWER ON</button>
+      <p class="boot-hint">Click to initialize audio engine</p>
+    </div>
+  </div>
+
+  <!-- Main synth body -->
+  <div id="synth-body">
+    <!-- Header -->
+    <header class="synth-header">
+      <div class="header-left">
+        <h1>NEXUS<span class="title-accent">-Moog</span></h1>
+      </div>
+      <div class="header-center">
+        <select id="preset-select" class="preset-select"></select>
+        <button id="preset-save" class="btn-icon" title="Save preset">💾</button>
+        <button id="preset-random" class="btn-icon" title="Randomize">🎲</button>
+        <button id="panic-btn" class="btn-icon" title="Panic / All notes off">⚠</button>
+      </div>
+      <div class="header-right">
+        <button id="viz-mode" class="btn-small">SCOPE</button>
+      </div>
+    </header>
+
+    <!-- Visualizer -->
+    <div id="visualizer" class="visualizer-container"></div>
+
+    <!-- Main control grid -->
+    <div class="main-grid">
+      <!-- Oscillators -->
+      <div class="panel" id="osc-panel">
+        <h2 class="panel-title">OSCILLATORS</h2>
+        <div class="osc-toggles">
+          <button id="osc-sync-btn" class="toggle-btn">SYNC</button>
+          <button id="ring-mod-btn" class="toggle-btn">RING MOD</button>
+        </div>
+        <div class="osc-sections">
+          <div id="osc1-section" class="osc-section">
+            <div class="osc-header">
+              <span class="osc-label">OSC 1</span>
+              <button class="osc-enable active">ON</button>
+              <select class="wave-select">
+                <option value="sawtooth">SAW</option>
+                <option value="square">SQUARE</option>
+                <option value="triangle">TRI</option>
+                <option value="sine">SINE</option>
+                <option value="pwm">PWM</option>
+              </select>
+            </div>
+            <div class="knob-row"></div>
+          </div>
+          <div id="osc2-section" class="osc-section">
+            <div class="osc-header">
+              <span class="osc-label">OSC 2</span>
+              <button class="osc-enable active">ON</button>
+              <select class="wave-select">
+                <option value="square">SQUARE</option>
+                <option value="sawtooth">SAW</option>
+                <option value="triangle">TRI</option>
+                <option value="sine">SINE</option>
+                <option value="pwm">PWM</option>
+              </select>
+            </div>
+            <div class="knob-row"></div>
+          </div>
+          <div id="osc3-section" class="osc-section">
+            <div class="osc-header">
+              <span class="osc-label">OSC 3</span>
+              <button class="osc-enable">OFF</button>
+              <select class="wave-select">
+                <option value="triangle">TRI</option>
+                <option value="sawtooth">SAW</option>
+                <option value="square">SQUARE</option>
+                <option value="sine">SINE</option>
+                <option value="pwm">PWM</option>
+              </select>
+            </div>
+            <div class="knob-row"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mixer -->
+      <div class="panel" id="mixer-panel">
+        <h2 class="panel-title">MIXER</h2>
+        <div id="mixer-section">
+          <div class="knob-row"></div>
+          <div class="noise-control">
+            <label>NOISE COLOR</label>
+            <select class="noise-color">
+              <option value="white">WHITE</option>
+              <option value="pink">PINK</option>
+              <option value="red">RED</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <div class="panel" id="filter-panel">
+        <h2 class="panel-title">LADDER FILTER</h2>
+        <div id="filter-section">
+          <div class="filter-modes">
+            <button class="filter-mode active" data-filter-mode="0">LP</button>
+            <button class="filter-mode" data-filter-mode="1">BP</button>
+            <button class="filter-mode" data-filter-mode="2">HP</button>
+          </div>
+          <div class="knob-row"></div>
+          <button id="filter-env-polarity" class="polarity-btn">ENV +</button>
+        </div>
+      </div>
+
+      <!-- Envelopes -->
+      <div class="panel" id="envelope-panel">
+        <h2 class="panel-title">ENVELOPES</h2>
+        <div class="env-sections">
+          <div id="filter-env-section" class="env-section">
+            <h3 class="sub-title">FILTER ENV</h3>
+            <button id="filterEnv-curve" class="curve-btn">EXP</button>
+            <div class="knob-row"></div>
+          </div>
+          <div id="amp-env-section" class="env-section">
+            <h3 class="sub-title">AMP ENV</h3>
+            <button id="ampEnv-curve" class="curve-btn">EXP</button>
+            <div class="knob-row"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LFO -->
+      <div class="panel" id="lfo-panel">
+        <h2 class="panel-title">LFO</h2>
+        <div id="lfo-section">
+          <div class="knob-row"></div>
+          <div class="lfo-controls">
+            <select class="lfo-wave">
+              <option value="sine">SINE</option>
+              <option value="triangle">TRI</option>
+              <option value="square">SQUARE</option>
+              <option value="sawtooth">SAW</option>
+            </select>
+            <select class="lfo-dest">
+              <option value="pitch">PITCH</option>
+              <option value="filter">FILTER</option>
+              <option value="amp">AMP</option>
+              <option value="pulseWidth">PWM</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- XY Pad -->
+      <div class="panel" id="xy-panel">
+        <h2 class="panel-title">XY CONTROL</h2>
+        <div class="xy-assign-buttons">
+          <button id="xy-assign-x" class="assign-btn">X: CUTOFF</button>
+          <button id="xy-assign-y" class="assign-btn">Y: RESO</button>
+        </div>
+        <div id="xy-pad" class="xy-pad-outer"></div>
+      </div>
+
+      <!-- Effects -->
+      <div class="panel effects-rack" id="effects-panel">
+        <h2 class="panel-title">EFFECTS</h2>
+        <div id="fx-distortion" class="fx-unit">
+          <div class="fx-header">
+            <span class="fx-name">DISTORTION</span>
+            <button class="fx-enable">ON</button>
+          </div>
+          <div class="knob-row"></div>
+        </div>
+        <div id="fx-chorus" class="fx-unit">
+          <div class="fx-header">
+            <span class="fx-name">CHORUS</span>
+            <button class="fx-enable">ON</button>
+          </div>
+          <div class="knob-row"></div>
+        </div>
+        <div id="fx-delay" class="fx-unit">
+          <div class="fx-header">
+            <span class="fx-name">DELAY</span>
+            <button class="fx-enable">ON</button>
+          </div>
+          <div class="knob-row"></div>
+        </div>
+        <div id="fx-reverb" class="fx-unit">
+          <div class="fx-header">
+            <span class="fx-name">REVERB</span>
+            <button class="fx-enable">ON</button>
+          </div>
+          <div class="knob-row"></div>
+        </div>
+        <div id="fx-bitcrusher" class="fx-unit">
+          <div class="fx-header">
+            <span class="fx-name">BITCRUSHER</span>
+            <button class="fx-enable">ON</button>
+          </div>
+          <div class="knob-row"></div>
+        </div>
+      </div>
+
+      <!-- Master -->
+      <div class="panel" id="master-panel">
+        <h2 class="panel-title">MASTER</h2>
+        <div id="master-section">
+          <div class="knob-row"></div>
+          <div class="glide-control">
+            <button id="glide-toggle" class="toggle-btn">GLIDE</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sequencer -->
+      <div class="panel" id="sequencer-panel">
+        <h2 class="panel-title">SEQUENCER</h2>
+        <div class="seq-controls">
+          <button id="seq-play" class="seq-btn">PLAY</button>
+          <button id="seq-clear" class="seq-btn">CLEAR</button>
+          <button id="seq-random" class="seq-btn">RAND</button>
+          <select id="seq-direction" class="seq-select">
+            <option value="forward">FWD</option>
+            <option value="backward">BWD</option>
+            <option value="pingpong">PING-PONG</option>
+            <option value="random">RND</option>
+          </select>
+          <div id="seq-swing" class="seq-swing-knob"></div>
+        </div>
+        <div class="seq-bpm-control">
+          <input type="range" id="seq-bpm" min="60" max="200" value="120" class="bpm-slider">
+          <span id="seq-bpm-display" class="bpm-display">120 BPM</span>
+        </div>
+        <div id="seq-grid" class="seq-grid"></div>
+      </div>
+    </div>
+
+    <!-- Keyboard -->
+    <div id="keyboard" class="keyboard-container"></div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
