@@ -19,6 +19,7 @@ powerBtn.addEventListener('click', async () => {
     powerBtn.classList.add('active');
     powerBtn.textContent = 'ON';
     document.getElementById('synth-body').classList.add('powered-on');
+    document.getElementById('boot-screen').classList.add('hidden');
     
     // Load default preset (non-fatal if it fails)
     try {
