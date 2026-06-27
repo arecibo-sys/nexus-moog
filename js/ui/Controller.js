@@ -322,10 +322,11 @@ export class Controller {
     });
 
     // Swing
-    const swingKnob = this.addKnob(document.getElementById('seq-swing'), '_seq.swing', {
+    const swingContainer = document.getElementById('seq-swing');
+    const swingKnob = new Knob(swingContainer, {
       min: 0, max: 0.6, value: 0, label: 'SWING',
+      onChange: (v) => this.sequencer.setSwing(v),
     });
-    swingKnob.onChange = (v) => this.sequencer.setSwing(v);
 
     // Step callback for visual
     this.sequencer.onStepCallback = (step) => {
