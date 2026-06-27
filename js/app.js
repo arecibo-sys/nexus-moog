@@ -20,8 +20,12 @@ powerBtn.addEventListener('click', async () => {
     powerBtn.textContent = 'ON';
     document.getElementById('synth-body').classList.add('powered-on');
     
-    // Load default preset
-    controller.loadPreset('Sub Boom');
+    // Load default preset (non-fatal if it fails)
+    try {
+      controller.loadPreset('Sub Boom');
+    } catch (pe) {
+      console.warn('Preset load skipped:', pe);
+    }
   } catch (e) {
     powerBtn.textContent = 'ERROR';
     console.error('Init failed:', e);
