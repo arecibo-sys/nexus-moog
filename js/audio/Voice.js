@@ -103,17 +103,21 @@ export class Voice {
 
     // --- Filter ---
     // Each voice gets its own ladder filter instance for polyphonic filtering
-    this.filterNode = this.ctx.createAudioWorkletNode('ladder-filter', {
-      numberOfInputs: 1,
-      numberOfOutputs: 1,
-      channelCount: 1,
-      parameterData: {
+    if (sharedLadder && !sharedLadder.fallback) {
+      this.filterNode = sharedLadder.createNode({
         cutoff: this.params.filterCutoff,
         resonance: this.params.filterResonance,
         drive: this.params.filterDrive,
         mode: this.params.filterMode,
-      },
-    });
+      });
+    } else {
+      // Fallback to biquad filter if worklet not available
+      this.filterNode = ctx.createBiquadFilter();
+      this.filterNode.type = this.params.filterMode === 1 ? 'bandpass' : (this.params.filterMode === 2 ? 'highpass' : 'lowpass');
+      this.filterNode.frequency.value = this.params.filterCutoff;
+      this.filterNode.Q.value = this.params.filterResonance * 10;
+      this.usingBiquad = true;
+    }
 
     // Connect oscillators to filter
     this.oscillators.forEach(({ gain }) => gain.connect(this.filterNode));
@@ -199,7 +203,7 @@ export class Voice {
     const susCutoff = baseCutoff + amt * env.sustain * 8000 + keyAmount;
 
     const t = ctx.currentTime;
-    const cutoffParam = this.filterNode.parameters.get('cutoff');
+    const cutoffParam = this.usingBiquad ? this.filterNode.frequency : this.filterNode.parameters.get('cutoff');
 
     cutoffParam.setValueAtTime(baseCutoff + keyAmount, t);
     cutoffParam.linearRampToValueAtTime(peakCutoff, t + env.attack);
@@ -240,7 +244,7 @@ export class Voice {
     const currentLevel = this.envelopeGain.gain.value;
 
     // Filter envelope release
-    const cutoffParam = this.filterNode.parameters.get('cutoff');
+    const cutoffParam = this.usingBiquad ? this.filterNode.frequency : this.filterNode.parameters.get('cutoff');
     const baseCutoff = this.params.filterCutoff;
     const keyTrack = this.params.filterKeyTrack;
     const keyAmount = keyTrack > 0 ? (this.midiNote - 60) * keyTrack * 50 : 0;
@@ -288,14 +292,19 @@ export class Voice {
   updateParams(params) {
     // Live param updates for active voice
     if (this.filterNode && !this.released) {
-      const cutoffP = this.filterNode.parameters.get('cutoff');
-      const resP = this.filterNode.parameters.get('resonance');
-      const driveP = this.filterNode.parameters.get('drive');
-      const modeP = this.filterNode.parameters.get('mode');
-      cutoffP.setTargetAtTime(params.filterCutoff, this.ctx.currentTime, 0.01);
-      resP.setTargetAtTime(params.filterResonance, this.ctx.currentTime, 0.01);
-      driveP.setTargetAtTime(params.filterDrive, this.ctx.currentTime, 0.01);
-      modeP.setTargetAtTime(params.filterMode, this.ctx.currentTime, 0.01);
+      if (this.usingBiquad) {
+        this.filterNode.frequency.setTargetAtTime(params.filterCutoff, this.ctx.currentTime, 0.01);
+        this.filterNode.Q.setTargetAtTime(params.filterResonance * 10, this.ctx.currentTime, 0.01);
+      } else {
+        const cutoffP = this.filterNode.parameters.get('cutoff');
+        const resP = this.filterNode.parameters.get('resonance');
+        const driveP = this.filterNode.parameters.get('drive');
+        const modeP = this.filterNode.parameters.get('mode');
+        cutoffP.setTargetAtTime(params.filterCutoff, this.ctx.currentTime, 0.01);
+        resP.setTargetAtTime(params.filterResonance, this.ctx.currentTime, 0.01);
+        driveP.setTargetAtTime(params.filterDrive, this.ctx.currentTime, 0.01);
+        modeP.setTargetAtTime(params.filterMode, this.ctx.currentTime, 0.01);
+      }
     }
   }
 
