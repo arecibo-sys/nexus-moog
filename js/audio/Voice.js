@@ -10,6 +10,7 @@ export class Voice {
     this.velocity = velocity / 127;
     this.active = true;
     this.released = false;
+    this.sharedLadder = sharedLadder;
 
     this.oscillators = [];
     this.gains = [];
@@ -103,8 +104,8 @@ export class Voice {
 
     // --- Filter ---
     // Each voice gets its own ladder filter instance for polyphonic filtering
-    if (sharedLadder && !sharedLadder.fallback) {
-      this.filterNode = sharedLadder.createNode({
+    if (this.sharedLadder && !this.sharedLadder.fallback) {
+      this.filterNode = this.sharedLadder.createNode({
         cutoff: this.params.filterCutoff,
         resonance: this.params.filterResonance,
         drive: this.params.filterDrive,
